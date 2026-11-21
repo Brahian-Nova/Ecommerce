@@ -13,8 +13,9 @@ class EcommerceProvider extends ChangeNotifier {
   List<dynamic>? productos;
   Map<String, dynamic>? productoSeleccionado;
 
-  // Variables del carrito
+  // Variables del carrito y pedidos realizados
   List<Map<String, dynamic>> carrito = [];
+  List<Map<String, dynamic>> pedidos = [];
 
   // 1. Iniciar sesión (POST /login)
   Future<String?> login(String usuario, String password) async {
@@ -188,11 +189,39 @@ class EcommerceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Guardar la compra como un pedido con código de factura y número de guía
+  void registrarPedido(double subtotal, double iva, double envio, double total) {
+    int numero = 1001 + pedidos.length;
+    List<Map<String, dynamic>> itemsComprados = [];
+    for (int i = 0; i < carrito.length; i++) {
+      itemsComprados.add({
+        'id': carrito[i]['id'],
+        'nombre': carrito[i]['nombre'],
+        'precio': carrito[i]['precio'],
+        'cantidad': carrito[i]['cantidad'],
+      });
+    }
+
+    pedidos.insert(0, {
+      'factura': 'FAC-$numero',
+      'guia': 'GUIA-TE-$numero',
+      'items': itemsComprados,
+      'subtotal': subtotal,
+      'iva': iva,
+      'envio': envio,
+      'total': total,
+    });
+
+    carrito.clear();
+    notifyListeners();
+  }
+
   // 8. Cerrar sesión (elimina el JWT y datos de usuario)
   void cerrarSesion() {
     token = null;
     usuarioActual = null;
     carrito.clear();
+    pedidos.clear();
     notifyListeners();
   }
 }

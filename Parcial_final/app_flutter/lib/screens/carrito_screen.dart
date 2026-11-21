@@ -44,33 +44,142 @@ class _CarritoScreenState extends State<CarritoScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Mensaje de compra realizada (tarjeta verde suave)
-              if (compraRealizada)
+              // Factura y número de guía generados al completar la compra
+              if (compraRealizada && provider.pedidos.isNotEmpty)
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(18),
                   margin: EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    border: Border.all(color: Colors.green.shade100),
+                    color: Colors.white,
+                    border: Border.all(color: Colors.green),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.check_circle, color: Colors.green, size: 50),
-                      SizedBox(height: 10),
+                      Center(
+                        child: Column(
+                          children: [
+                            Icon(Icons.check_circle, color: Colors.green, size: 46),
+                            SizedBox(height: 8),
+                            Text(
+                              '¡Compra realizada con éxito!',
+                              style: TextStyle(
+                                color: Colors.green.shade800,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Comprobante de compra - TiendaExpress',
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 14),
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Código de factura:',
+                                  style: TextStyle(color: Colors.grey.shade700),
+                                ),
+                                Text(
+                                  provider.pedidos[0]['factura'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blueGrey.shade900,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Número de guía:',
+                                  style: TextStyle(color: Colors.grey.shade700),
+                                ),
+                                Text(
+                                  provider.pedidos[0]['guia'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 12),
                       Text(
-                        '¡Compra realizada con éxito!',
+                        'Productos comprados:',
                         style: TextStyle(
-                          color: Colors.green.shade800,
-                          fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          color: Colors.blueGrey.shade900,
                         ),
                       ),
                       SizedBox(height: 6),
-                      Text(
-                        'Gracias por tu pedido en nuestra tienda.',
-                        style: TextStyle(color: Colors.green.shade700),
+                      for (int j = 0; j < provider.pedidos[0]['items'].length; j++)
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  '${provider.pedidos[0]['items'][j]['cantidad']}x ${provider.pedidos[0]['items'][j]['nombre']}',
+                                  style: TextStyle(fontSize: 13),
+                                ),
+                              ),
+                              Text(
+                                '\$${(provider.pedidos[0]['items'][j]['precio'] * provider.pedidos[0]['items'][j]['cantidad']).toStringAsFixed(0)}',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Total pagado:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blueGrey.shade900,
+                            ),
+                          ),
+                          Text(
+                            '\$${provider.pedidos[0]['total'].toStringAsFixed(0)}',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -331,7 +440,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
                               procesandoPago = true;
                             });
                             await Future.delayed(Duration(seconds: 2));
-                            provider.vaciarCarrito();
+                            provider.registrarPedido(subtotal, iva, envio, total);
                             setState(() {
                               procesandoPago = false;
                               compraRealizada = true;
@@ -350,6 +459,103 @@ class _CarritoScreenState extends State<CarritoScreen> {
                           ),
                         ),
                       ),
+              ],
+
+              // Historial de pedidos realizados (visible desde "Mis pedidos / Carrito")
+              if (provider.pedidos.isNotEmpty) ...[
+                SizedBox(height: 24),
+                Text(
+                  'MIS PEDIDOS REALIZADOS',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                    color: Colors.blueGrey.shade900,
+                  ),
+                ),
+                SizedBox(height: 12),
+                for (int p = 0; p < provider.pedidos.length; p++)
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.only(bottom: 12),
+                    padding: EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.grey.shade200),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Factura: ${provider.pedidos[p]['factura']}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blueGrey.shade900,
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade50,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'Confirmado',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green.shade700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Guía de envío: ${provider.pedidos[p]['guia']}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        for (int j = 0; j < provider.pedidos[p]['items'].length; j++)
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 2),
+                            child: Text(
+                              '• ${provider.pedidos[p]['items'][j]['cantidad']}x ${provider.pedidos[p]['items'][j]['nombre']}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ),
+                        SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Total:',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              '\$${provider.pedidos[p]['total'].toStringAsFixed(0)}',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blueGrey.shade900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ],
           ),

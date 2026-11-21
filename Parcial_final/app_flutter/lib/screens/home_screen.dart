@@ -14,6 +14,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String textoBusqueda = '';
   String categoriaSeleccionada = 'Todos';
   int bannerActual = 0;
+  // Guarda la cantidad seleccionada en cada tarjeta del catálogo (id -> cantidad)
+  Map<String, dynamic> cantidades = {};
 
   final List<String> banners = [
     'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800',
@@ -194,7 +196,43 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. BUSCADOR EN TIEMPO REAL (blanco y redondeado)
+              // 1. BARRA DE DIRECCIÓN DE ENVÍO
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                margin: EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.yellow,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 18,
+                      color: Colors.blueGrey.shade900,
+                    ),
+                    SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Enviar a Bogotá D.C. - Cra 7 #72-10',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.blueGrey.shade900,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right,
+                      size: 18,
+                      color: Colors.blueGrey.shade900,
+                    ),
+                  ],
+                ),
+              ),
+
+              // 2. BUSCADOR EN TIEMPO REAL (blanco y redondeado)
               TextField(
                 controller: buscadorController,
                 onChanged: (valor) {
@@ -214,38 +252,103 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(height: 16),
 
-              // 2. BANNER PROMOCIONAL CON PUNTOS INDICADORES
+              // 3. BANNER PUBLICITARIO CON PUNTOS INDICADORES
               Stack(
                 children: [
                   Container(
-                    height: 160,
+                    height: 175,
                     width: double.infinity,
+                    padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.blueGrey.shade900,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Image.network(
-                      banners[bannerActual],
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Positioned(
-                    top: 14,
-                    left: 14,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.yellow,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        'OFERTAS ESPECIALES',
-                        style: TextStyle(
-                          color: Colors.blueGrey.shade900,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.yellow,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  bannerActual == 0
+                                      ? 'OFERTA FLASH 40% OFF'
+                                      : bannerActual == 1
+                                          ? 'MODA TEMPORADA 30% OFF'
+                                          : 'ENVÍO GRATIS HOY',
+                                  style: TextStyle(
+                                    color: Colors.blueGrey.shade900,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                bannerActual == 0
+                                    ? 'Especial Tecnología & Hogar'
+                                    : bannerActual == 1
+                                        ? 'Renueva tu Estilo'
+                                        : 'Lo Mejor en Accesorios',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Con despacho gratis hoy mismo en compras seleccionadas.',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  'Ver ofertas  >',
+                                  style: TextStyle(
+                                    color: Colors.blueGrey.shade900,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                        SizedBox(width: 10),
+                        Container(
+                          width: 105,
+                          height: 115,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.yellow, width: 2),
+                          ),
+                          child: Image.network(
+                            banners[bannerActual],
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -280,7 +383,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(height: 16),
 
-              // 3. FILTRO POR CATEGORÍAS (HORIZONTAL)
+              // 4. FILTRO POR CATEGORÍAS (HORIZONTAL)
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -310,7 +413,73 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
+              SizedBox(height: 14),
+
+              // 5. FRANJA PUBLICITARIA DE ENTREGA EXPRESS
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  border: Border.all(color: Colors.green.shade100),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.bolt, color: Colors.green, size: 20),
+                    SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Entrega rápida en menos de 24h',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green.shade900,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        'EXPRESS',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueGrey.shade900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               SizedBox(height: 16),
+
+              // TÍTULO DE SECCIÓN
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'RECOMENDADOS PARA TI',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueGrey.shade900,
+                    ),
+                  ),
+                  Text(
+                    '${listaFiltrada.length} productos',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 12),
 
               // 4. LISTADO DE PRODUCTOS (2 COLUMNAS)
               if (provider.productos == null)
@@ -407,49 +576,221 @@ class _HomeScreenState extends State<HomeScreen> {
     EcommerceProvider provider,
     Map<String, dynamic> producto,
   ) {
-    return GestureDetector(
-      onTap: () {
-        provider.seleccionarProducto(producto);
-        Navigator.pushNamed(context, '/detalle');
-      },
-      child: Container(
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey.shade200),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 130,
+    String idProd = producto['id'].toString();
+    int cant = cantidades[idProd] ?? 1;
+
+    // Algunos productos muestran etiqueta de descuento y otros no (solo visual)
+    int idNum = producto['id'];
+    bool tieneDescuento = (idNum % 2 == 1);
+    int porcentaje = idNum == 1 ? 23 : (idNum == 3 ? 14 : 20);
+    double precioAnterior = producto['precio'] * (1 + porcentaje / 100);
+
+    return Container(
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Al tocar imagen, nombre o precio se abre el detalle del producto
+          GestureDetector(
+            onTap: () {
+              provider.seleccionarProducto(producto);
+              Navigator.pushNamed(context, '/detalle');
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    SizedBox(
+                      height: 130,
+                      width: double.infinity,
+                      child: Image.network(
+                        producto['imagen'],
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    if (tieneDescuento)
+                      Positioned(
+                        top: 6,
+                        left: 6,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            '-$porcentaje%',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Text(
+                  producto['nombre'],
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Colors.blueGrey.shade900,
+                  ),
+                ),
+                SizedBox(height: 6),
+                if (tieneDescuento)
+                  Text(
+                    '\$${precioAnterior.toStringAsFixed(0)}',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                      decoration: TextDecoration.lineThrough,
+                    ),
+                  ),
+                Text(
+                  '\$${producto['precio']}',
+                  style: TextStyle(
+                    color: Colors.blueGrey.shade900,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                  ),
+                ),
+                if (tieneDescuento)
+                  Padding(
+                    padding: EdgeInsets.only(top: 3),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.local_shipping_outlined,
+                          size: 14,
+                          color: Colors.green,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          'Envío Gratis',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+
+          // Selector de cantidad (- / cantidad / +) sin salir del catálogo
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  if (cant > 1) {
+                    setState(() {
+                      cantidades[idProd] = cant - 1;
+                    });
+                  }
+                },
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '-',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey.shade900,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Text(
+                '$cant',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueGrey.shade900,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    cantidades[idProd] = cant + 1;
+                  });
+                },
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '+',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey.shade900,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+
+          // Botón para agregar al carrito con la cantidad escogida
+          GestureDetector(
+            onTap: () {
+              provider.agregarAlCarrito(producto, cant);
+              setState(() {
+                cantidades[idProd] = 1;
+              });
+            },
+            child: Container(
               width: double.infinity,
-              child: Image.network(
-                producto['imagen'],
-                fit: BoxFit.cover,
+              padding: EdgeInsets.symmetric(vertical: 7),
+              decoration: BoxDecoration(
+                color: Colors.yellow,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  'Agregar',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueGrey.shade900,
+                  ),
+                ),
               ),
             ),
-            SizedBox(height: 10),
-            Text(
-              producto['nombre'],
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-                color: Colors.blueGrey.shade900,
-              ),
-            ),
-            SizedBox(height: 6),
-            Text(
-              '\$${producto['precio']}',
-              style: TextStyle(
-                color: Colors.blueGrey.shade900,
-                fontWeight: FontWeight.bold,
-                fontSize: 17,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
