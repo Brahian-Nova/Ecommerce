@@ -1,0 +1,5 @@
+﻿Parcial_final/backend_api/__pycache__/
+Parcial_final/backend_api/*.db
+Parcial_final/app_flutter/.dart_tool/
+Parcial_final/app_flutter/build/
+Parcial_final/app_flutter/.idea/

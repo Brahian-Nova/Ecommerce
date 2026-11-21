@@ -1,0 +1,9 @@
+# Python / Backend
+__pycache__/
+*.db
+.venv/
+
+# Flutter
+app_flutter/.dart_tool/
+app_flutter/.idea/
+app_flutter/build/
